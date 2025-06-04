@@ -5,9 +5,6 @@ body {
     background: #f8f9fa;
     color: #333;
 }
-h1, h2, h3 {
-    color: #222;
-}
 button {
     padding: 8px 16px;
     margin: 4px;
@@ -30,3 +27,32 @@ input[type="text"], input[type="number"] {
 form {
     margin-bottom: 20px;
 }
+
+ul.tree {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tree li {
+    display: table;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.tree .node {
+    display: table-row;
+}
+
+.tree .cell {
+    display: table-cell;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    vertical-align: top;
+}
+
+/* 들여쓰기용 (depth 조절) */
+.indent-1 { padding-left: 16px; }
+.indent-2 { padding-left: 32px; }
+.indent-3 { padding-left: 48px; }
+.indent-4 { padding-left: 64px; }
+/* 필요시 더 추가 가능 */

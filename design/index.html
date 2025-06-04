@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ul/li 트리 테이블</title>
+    <script src="../js/util/DataTree.js"></script>
+    <script src="../js/util/DataTreeTest.js"></script>
+    <style>
+        ul.tree {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            width: 100%;
+        }
+
+        ul.tree li {
+            margin-bottom: 4px;
+        }
+
+        .row {
+            display: flex;
+            border: 1px solid #ccc;
+            align-items: center;
+        }
+
+        .row > div {
+            flex: 1;
+            padding: 8px;
+            border-right: 1px solid #ccc;
+        }
+
+        .row > div:last-child {
+            border-right: none;
+        }
+
+        .controls {
+            white-space: nowrap;
+            padding: 0 8px;
+        }
+
+        ul.tree ul.tree {
+            margin-left: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<ul class="tree" id="treeRoot">
+    <li>
+        <div class="row">
+            <div>메뉴1</div>
+            <div>1000원</div>
+            <div>대표</div>
+            <div class="controls">
+                <button class="toggle">[-]</button>
+                <button class="add-child">[+ 하위추가]</button>
+            </div>
+        </div>
+        <ul class="tree">
+            <li>
+                <div class="row">
+                    <div>양상추</div>
+                    <div>100원</div>
+                    <div>신선</div>
+                    <div class="controls">
+                        <button class="toggle">[-]</button>
+                        <button class="add-child">[+ 하위추가]</button>
+                    </div>
+                </div>
+                <ul class="tree">
+                    <li>
+                        <div class="row">
+                            <div>씨앗</div>
+                            <div>30원</div>
+                            <div>국산</div>
+                            <div class="controls">
+                                <button class="add-child">[+ 하위추가]</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<script>
+    // 접기/펼치기 버튼 기능
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('toggle')) {
+            const btn = e.target;
+            const li = btn.closest('li');
+            const childUl = li.querySelector('ul.tree');
+
+            if (childUl) {
+                const hidden = childUl.classList.toggle('hidden');
+                btn.textContent = hidden ? '[+]' : '[-]';
+            }
+        }
+
+        // 하위 추가 버튼
+        if (e.target.classList.contains('add-child')) {
+            const li = e.target.closest('li');
+            let childUl = li.querySelector('ul.tree');
+
+            if (!childUl) {
+                childUl = document.createElement('ul');
+                childUl.classList.add('tree');
+                li.appendChild(childUl);
+            }
+
+            const newLi = document.createElement('li');
+            newLi.innerHTML = `
+        <div class="row">
+          <div>새 항목</div>
+          <div>0원</div>
+          <div>-</div>
+          <div class="controls">
+            <button class="toggle">[-]</button>
+            <button class="add-child">[+ 하위추가]</button>
+          </div>
+        </div>
+      `;
+            childUl.appendChild(newLi);
+        }
+    });
+</script>
+
+</body>
+</html>
