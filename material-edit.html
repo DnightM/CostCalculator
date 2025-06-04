@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>재료 등록/조합</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h2>재료 등록/조합</h2>
+<form id="material-form">
+    <input type="text" id="material-name" placeholder="재료명">
+    <input type="number" id="material-cost" placeholder="총원가">
+    <input type="number" id="material-qty" placeholder="수량">
+    <button type="submit">재료 생성</button>
+</form>
+
+<form id="material-compose-form">
+    <input type="text" id="parent-material" placeholder="부모 재료명">
+    <input type="text" id="child-material" placeholder="하위 재료명">
+    <input type="number" id="child-qty" placeholder="수량">
+    <button type="submit">조합 추가</button>
+</form>
+
+<script src="js/data-tree.js"></script>
+<script>
+    const tree = new DataTree();
+
+    document.getElementById("material-form").onsubmit = (e) => {
+        e.preventDefault();
+        const name = document.getElementById("material-name").value;
+        const cost = parseInt(document.getElementById("material-cost").value);
+        const qty = parseInt(document.getElementById("material-qty").value);
+        tree.createMaterial(name, qty, cost);
+        alert(`${name} 재료 생성됨`);
+    };
+
+    document.getElementById("material-compose-form").onsubmit = (e) => {
+        e.preventDefault();
+        const parent = document.getElementById("parent-material").value;
+        const child = document.getElementById("child-material").value;
+        const qty = parseInt(document.getElementById("child-qty").value);
+        tree.insertChild(parent, child, qty);
+        alert(`${child} -> ${parent} 조합 완료`);
+    };
+</script>
+</body>
+</html>

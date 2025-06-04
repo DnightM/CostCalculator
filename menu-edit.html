@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 등록/수정</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h2>메뉴 등록/수정</h2>
+<form id="menu-form">
+    <input type="text" id="item-name" placeholder="메뉴명">
+    <input type="number" id="sales-price" placeholder="판매가">
+    <button type="submit">저장</button>
+</form>
+<div id="recipe-editor"></div>
+
+<script src="js/data-tree.js"></script>
+<script>
+    const tree = new DataTree();
+
+    document.getElementById("menu-form").onsubmit = (e) => {
+        e.preventDefault();
+        const name = document.getElementById("item-name").value;
+        const price = parseInt(document.getElementById("sales-price").value);
+        const item = tree.createItem(name, price);
+        alert(`${name} 저장 완료`);
+    };
+</script>
+</body>
+</html>

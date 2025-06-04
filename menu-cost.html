@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 원가 보기</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h2>메뉴 원가 보기</h2>
+<div id="menu-list"></div>
+<div id="menu-detail"></div>
+<script src="js/data-tree.js"></script>
+<script>
+    const tree = new DataTree();
+
+    // 샘플 데이터
+    const milk = tree.createMaterial("우유", 1000, 500); // 1000ml, 500원
+    const syrup = tree.createMaterial("시럽", 100, 300); // 100ml, 300원
+    const latte = tree.createItem("카페라떼", 4500);
+    tree.insertChild("카페라떼", "우유", 200);
+    tree.insertChild("카페라떼", "시럽", 3);
+
+    const listDiv = document.getElementById("menu-list");
+    const detailDiv = document.getElementById("menu-detail");
+
+    Object.values(tree.nodes).forEach((node) => {
+        if (node.type === 'Item') {
+            const btn = document.createElement("button");
+            btn.innerText = node.name;
+            btn.onclick = () => {
+                const detail = [`<h3>${node.name}</h3>`];
+                detail.push(`<p>판매가: ${node.salesPrice}원</p>`);
+                detail.push(`<p>원가: ${node.unitCost.toFixed(2)}원</p>`);
+                detail.push("<ul>");
+                for (const key in node.child) {
+                    const ch = node.child[key];
+                    detail.push(`<li>${ch.node.name} (${ch.quantity}) - ${ch.node.unitCost.toFixed(2)}원</li>`);
+                }
+                detail.push("</ul>");
+                detailDiv.innerHTML = detail.join("");
+            };
+            listDiv.appendChild(btn);
+        }
+    });
+</script>
+</body>
+</html>
