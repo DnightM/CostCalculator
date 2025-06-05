@@ -1,0 +1,51 @@
+ul.tree {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+ul.tree li {
+    margin-bottom: 4px;
+}
+
+.row {
+    display: flex;
+    border: 1px solid #ccc;
+    align-items: center;
+}
+
+.row > div.row-name {
+    max-width: 200px; /* 이름칸만 더 넓게 */
+    text-align: center; /* 기본: 우측 정렬 */
+}
+
+.row > div {
+    flex: 1;
+    padding: 8px;
+    border-right: 1px solid #ccc;
+    max-width: 50px;       /* 셀 최대 너비 */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right; /* 기본: 우측 정렬 */
+}
+
+.row > div:last-child {
+    border-right: none;
+    max-width: none;       /* 컨트롤 버튼은 너비 제한 X */
+    white-space: nowrap;
+}
+
+.controls {
+    white-space: nowrap;
+    padding: 0 8px;
+}
+
+ul.tree ul.tree {
+    margin-left: 20px;
+}
+
+.hidden {
+    display: none;
+}

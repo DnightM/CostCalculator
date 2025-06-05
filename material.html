@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="UTF-8">
-    <title>재료 등록/조합</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>재료 관리</title>
+    <link rel="stylesheet" href="css/top-bar.css">
+    <script src="js/top-bar.js"></script>
+
+    <script src="js/util/lz-string.min.js"></script>
 </head>
 <body>
+<div id="topBar" style="min-height:50px;"></div>
+
 <h2>재료 등록/조합</h2>
 <form id="material-form">
     <input type="text" id="material-name" placeholder="재료명">
@@ -21,7 +27,7 @@
     <button type="submit">조합 추가</button>
 </form>
 
-<script src="js/data-tree.js"></script>
+<script src="js/util/DataTree.js"></script>
 <script>
     const tree = new DataTree();
 

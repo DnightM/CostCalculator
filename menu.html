@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="UTF-8">
-    <title>메뉴 등록/수정</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>메뉴 관리</title>
+    <link rel="stylesheet" href="css/top-bar.css">
+    <script src="js/top-bar.js"></script>
+
+    <script src="js/util/lz-string.min.js"></script>
 </head>
 <body>
+<div id="topBar" style="min-height:50px;"></div>
+
 <h2>메뉴 등록/수정</h2>
 <form id="menu-form">
     <input type="text" id="item-name" placeholder="메뉴명">
@@ -14,7 +20,7 @@
 </form>
 <div id="recipe-editor"></div>
 
-<script src="js/data-tree.js"></script>
+<script src="js/util/DataTree.js"></script>
 <script>
     const tree = new DataTree();
 

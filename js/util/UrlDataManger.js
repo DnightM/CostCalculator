@@ -1,5 +1,3 @@
-import LZString from 'lz-string';
-
 class UrlDataManager {
     static DEFAULT_PARAM_KEY = 'p'; // 기본 URL 파라미터 키
     static MAX_URL_LENGTH = 30000; // 브라우저의 안전한 URL 길이 (보수적으로 설정)
