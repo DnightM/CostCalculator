@@ -1,6 +1,3 @@
-import UrlDataManger from "./UrlDataManger";
-import IdManager from "./IdManager";
-
 class ItemData {
     data;
     /*

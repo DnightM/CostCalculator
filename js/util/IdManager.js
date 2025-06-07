@@ -1,36 +1,72 @@
-import UrlDataManager from "./UrlDataManger";
-
+/**
+ * ID를 고유하게 관리하는 클래스
+ */
 class IdManager {
-    set = new Set();
+    constructor(startId = 1) {
+        this.usedIds = new Set();      // 사용된 ID 저장
+        this.lastGenerated = startId;  // 자동 생성 시작값
+    }
 
-    lastId = 1;
-
+    /**
+     * 수동으로 ID 추가
+     * @param {number} id
+     * @returns {boolean} true: 성공, false: 중복
+     */
     add(id) {
-        if (typeof id !== 'number') {
-            throw new Error(`The ID must be numeric only.`)
+        if (typeof id !== 'number' || !Number.isInteger(id)) {
+            throw new Error('ID must be an integer.');
         }
-        if (this.hasId(id)) {
-            return false;
-        }
-        this.set.add(id);
+        if (this.usedIds.has(id)) return false;
+        this.usedIds.add(id);
         return true;
     }
 
-    hasId(id) {
-        return this.set.has(id);
+    /**
+     * ID 제거
+     * @param {number} id
+     * @returns {boolean} true: 제거됨, false: 없었음
+     */
+    delete(id) {
+        return this.usedIds.delete(id);
     }
 
-    createId() {
-        let id = this.lastId;
+    /**
+     * ID 존재 여부 확인
+     * @param {number} id
+     * @returns {boolean}
+     */
+    has(id) {
+        return this.usedIds.has(id);
+    }
 
-        while (true) {
-            if (!this.hasId(id)) {
-                this.add(id);
-                this.lastId = id;
-                return id;
+    /**
+     * 고유한 ID 자동 생성
+     * @returns {number}
+     */
+    create() {
+        while (this.lastGenerated <= Number.MAX_SAFE_INTEGER) {
+            const candidate = this.lastGenerated++;
+            if (!this.usedIds.has(candidate)) {
+                this.usedIds.add(candidate);
+                return candidate;
             }
-            id++;
-
         }
+        throw new Error('ID limit exceeded.');
+    }
+
+    /**
+     * 모든 ID 초기화
+     */
+    reset() {
+        this.usedIds.clear();
+        this.lastGenerated = 1;
+    }
+
+    /**
+     * 현재까지 등록된 모든 ID 반환
+     * @returns {number[]}
+     */
+    getAll() {
+        return Array.from(this.usedIds).sort((a, b) => a - b);
     }
 }

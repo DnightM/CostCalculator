@@ -6,31 +6,12 @@
     <title>메뉴 관리</title>
     <link rel="stylesheet" href="css/top-bar.css">
 
-    <script src="js/util/lz-string.min.js"></script>
-</head>
+    <script src="js/util/DataTree.js"></script>
+    <script src="js/util/lz-string.min.js"></script></head>
 <body>
 <div id="topBar" style="min-height:50px;"></div>
+<h2 style="text-align: center">메뉴 관리</h2>
 
-<h2>메뉴 등록/수정</h2>
-<form id="menu-form">
-    <input type="text" id="item-name" placeholder="메뉴명">
-    <input type="number" id="sales-price" placeholder="판매가">
-    <button type="submit">저장</button>
-</form>
-<div id="recipe-editor"></div>
-
-<script src="js/util/DataTree.js"></script>
-<script>
-    const tree = new DataTree();
-
-    document.getElementById("menu-form").onsubmit = (e) => {
-        e.preventDefault();
-        const name = document.getElementById("item-name").value;
-        const price = parseInt(document.getElementById("sales-price").value);
-        const item = tree.createItem(name, price);
-        alert(`${name} 저장 완료`);
-    };
-</script>
 </body>
 <script src="js/top-bar.js"></script>
 </html>

@@ -16,6 +16,10 @@ ul.tree li {
     align-items: center;
 }
 
+.row > div.addItem {
+   color: red;
+}
+
 .row > div.row-name {
     max-width: 200px; /* 이름칸만 더 넓게 */
     text-align: center; /* 기본: 우측 정렬 */
@@ -25,7 +29,7 @@ ul.tree li {
     flex: 1;
     padding: 8px;
     border-right: 1px solid #ccc;
-    max-width: 50px;       /* 셀 최대 너비 */
+    max-width: 50px; /* 셀 최대 너비 */
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: right; /* 기본: 우측 정렬 */
@@ -33,7 +37,7 @@ ul.tree li {
 
 .row > div:last-child {
     border-right: none;
-    max-width: none;       /* 컨트롤 버튼은 너비 제한 X */
+    max-width: none; /* 컨트롤 버튼은 너비 제한 X */
     white-space: nowrap;
 }
 

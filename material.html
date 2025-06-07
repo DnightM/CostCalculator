@@ -6,27 +6,14 @@
     <title>재료 관리</title>
     <link rel="stylesheet" href="css/top-bar.css">
 
+    <script src="js/util/DataTree.js"></script>
     <script src="js/util/lz-string.min.js"></script>
 </head>
 <body>
 <div id="topBar" style="min-height:50px;"></div>
 
-<h2>재료 등록/조합</h2>
-<form id="material-form">
-    <input type="text" id="material-name" placeholder="재료명">
-    <input type="number" id="material-cost" placeholder="총원가">
-    <input type="number" id="material-qty" placeholder="수량">
-    <button type="submit">재료 생성</button>
-</form>
+<h2 style="text-align: center">재료 관리</h2>
 
-<form id="material-compose-form">
-    <input type="text" id="parent-material" placeholder="부모 재료명">
-    <input type="text" id="child-material" placeholder="하위 재료명">
-    <input type="number" id="child-qty" placeholder="수량">
-    <button type="submit">조합 추가</button>
-</form>
-
-<script src="js/util/DataTree.js"></script>
 <script>
     const tree = new DataTree();
 
