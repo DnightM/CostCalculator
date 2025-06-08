@@ -57,9 +57,9 @@ class IdManager {
     /**
      * 모든 ID 초기화
      */
-    reset() {
+    reset(startId = 1) {
         this.usedIds.clear();
-        this.lastGenerated = 1;
+        this.lastGenerated = startId;
     }
 
     /**

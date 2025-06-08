@@ -1,38 +1,37 @@
-/**
- 전체 데이터를 담는 자료구조
- */
 class DataTree {
-    _nodes = {};
+    _nodes = {}; // id -> Node
+    _idManager = new IdManager();
 
     static from(obj) {
-        const dataTree = Object.assign(new DataTree(), obj);
+        const dataTree = new DataTree();
         const tempNodes = {};
-        for (const key in dataTree.nodes) {
-            const nodeObj = dataTree.nodes[key];
-            convert(nodeObj);
-        }
 
-        dataTree.nodes = tempNodes;
+        // IDManager 복원
+        Object.assign(dataTree._idManager, obj._idManager);
+
+        // 노드 복원
+        for (const id in obj._nodes) {
+            const nodeObj = obj._nodes[id];
+            tempNodes[id] = convert(nodeObj);
+        }
+        dataTree._nodes = tempNodes;
 
         function convert(obj) {
-            if (tempNodes[obj.name]) {
-                return tempNodes[obj.name];
-            }
-
             const type = obj._type;
-
             let node;
             if (type === 'Item') {
                 node = Object.assign(new Item(), obj);
             } else if (type === 'Material') {
                 node = Object.assign(new Material(), obj);
             } else {
-                throw new Error(`Invalid type : ${type} | ${JSON.stringify(obj)}`);
+                throw new Error(`Invalid type: ${type}`);
             }
-            tempNodes[node.name] = node;
 
-            for (const key in node.child) {
-                node.child[key].node = convert(node.child[key].node);
+            if (node._child) {
+                for (const key in node._child) {
+                    const entry = node._child[key];
+                    entry.node = convert(entry.node);
+                }
             }
 
             return node;
@@ -41,77 +40,60 @@ class DataTree {
         return dataTree;
     }
 
-
     get nodes() {
         return this._nodes;
     }
 
-    set nodes(nodes) {
-        this._nodes = nodes;
+    getNodeById(id) {
+        return this._nodes[id];
     }
 
     createItem(name, salesPrice) {
-        const item = new Item(name, salesPrice);
-        this._nodes[name] = item;
+        const id = this._idManager.create();
+        const item = new Item(id, name, salesPrice);
+        this._nodes[id] = item;
         return item;
     }
 
     createMaterial(name, quantity, cost) {
-        const material = new Material(name, quantity, cost);
-        this._nodes[name] = material;
+        const id = this._idManager.create();
+        const material = new Material(id, name, quantity, cost);
+        this._nodes[id] = material;
         return material;
     }
 
-    getNode(name) {
-        const node = this._nodes[name];
-        if (!node) {
-            throw new Error(`'${name}' 미등록 제품`);
-        }
-        return node;
-    }
-
-    removeNode(name) {
-        delete this._nodes[name];
-        for (const key in this._nodes) {
-            const node = this._nodes[key];
-            if (node.child && node.child[name]) {
-                delete node.child[name];
+    removeNode(id) {
+        delete this._nodes[id];
+        for (const node of Object.values(this._nodes)) {
+            if (node.child && node.child[id]) {
+                delete node.child[id];
                 if (Object.keys(node.child).length === 0) node._child = null;
             }
         }
     }
 
-    insertChild(parentName, childName, quantity) {
-        const parentNode = this.getNode(parentName);
-        const childNode = this.getNode(childName);
+    insertChild(parentId, childId, quantity) {
+        const parentNode = this.getNodeById(parentId);
+        const childNode = this.getNodeById(childId);
         parentNode.insert(childNode, quantity);
     }
 
-    removeChild(parentName, childName) {
-        const parentNode = this.getNode(parentName);
-        const childNode = this.getNode(childName);
+    removeChild(parentId, childId) {
+        const parentNode = this.getNodeById(parentId);
+        const childNode = this.getNodeById(childId);
         parentNode.remove(childNode);
     }
 }
 
 class Node {
-    _name; // 제품명
-    _cost; // 원가
-    _quantity; // 수량(용량)
-    _child; // 제품을 구성하는 재료들 List.
-    _type;
-
-    constructor(name) {
+    constructor(id, name) {
+        this._id = id;
         this._name = name;
         this._cost = null;
+        this._quantity = null;
         this._child = null;
     }
 
-    /**
-     * 이 node 를 구성하는 재료 추가
-     * @param {Node} node - 추가할 재료
-     * @param {number} quantity - 사용 수량
-     */
     insert(node, quantity) {
         if (node instanceof Item) {
             throw new Error(`'${node._name}' 항목은 제품이기에 하위 항목 설정이 불가`);
@@ -122,12 +104,10 @@ class Node {
             this._cost = null;
         }
 
-        this._child[node.name] = { node, quantity };
+        this._child[node.id] = { node, quantity };
 
-        // 순환 참조 검사
         if (this.hasCycle()) {
-            // 되돌리기
-            delete this._child[node.name];
+            delete this._child[node.id];
             if (Object.keys(this._child).length === 0) {
                 this._child = null;
             }
@@ -136,89 +116,54 @@ class Node {
     }
 
     remove(node) {
-        delete this._child[node.name];
+        delete this._child[node.id];
         if (Object.keys(this._child).length === 0) {
             this._child = null;
         }
     }
 
-    get name() {
-        return this._name;
-    }
-
-    get cost() {
-        return this._cost;
-    }
-
-    get unitCost() {
-        if (!this._child) {
-            if (this._cost == null || this._quantity === 0) return 0;
-            return this._cost / this._quantity;
-        }
-        // TODO 값을 가져올떄마다 전체 스캔을 하므로, 차후 필요시 성능 개선할 것.
-        let unitCost = 0;
-        for (const name in this._child) {
-            const obj = this._child[name]; // {node:node, quantity:quantity}
-            unitCost += obj.node.unitCost * obj.quantity;
-        }
-        return unitCost;
-    }
-
-    get child() {
-        return this._child;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    set cost(cost) {
-        if (this._child) {
-            throw new Error(`'${this._name}' 안에 하위 항목들이 존재하므로, 가격 임의 변경이 불가능 합니다.`);
-        }
-        this._cost = cost;
-    }
-
-    set name(name) {
-        this._name = name;
-    }
-
-    get quantity() {
-        return this._quantity;
-    }
-
-    set quantity(quantity) {
-        if (this._type === 'Item') {
-            throw new Error(`Item '${this._name}'의 수량 변경은 불가능`);
-        }
-        this._quantity = quantity;
-    }
-
-    /**
-     * 순환 참조 여부 체크
-     * @param {Set<string>} seen - 중복 방문 체크용
-     * @returns {boolean} - 순환 참조 여부
-     */
     hasCycle(seen = new Set()) {
-        if (seen.has(this._name)) return true;
-        seen.add(this._name);
-
+        if (seen.has(this._id)) return true;
+        seen.add(this._id);
         if (this._child) {
             for (const key in this._child) {
                 const childNode = this._child[key].node;
                 if (childNode.hasCycle(new Set(seen))) return true;
             }
         }
-
         return false;
+    }
+
+    get id() { return this._id; }
+    get name() { return this._name; }
+    set name(val) { this._name = val; }
+    get cost() { return this._cost; }
+    set cost(val) {
+        if (this._child) {
+            throw new Error(`'${this._name}' 안에 하위 항목들이 존재하므로, 가격 임의 변경이 불가능 합니다.`);
+        }
+        this._cost = val;
+    }
+    get quantity() { return this._quantity; }
+    set quantity(val) { this._quantity = val; }
+    get child() { return this._child; }
+    get unitCost() {
+        if (!this._child) {
+            if (this._cost == null || this._quantity === 0) return 0;
+            return this._cost / this._quantity;
+        }
+        let unitCost = 0;
+        for (const key in this._child) {
+            const obj = this._child[key];
+            unitCost += obj.node.unitCost * obj.quantity;
+        }
+        return unitCost;
     }
 }
 
 class Item extends Node {
-    _salesPrice; // 판매가
-
-    constructor(name, salesPrice) {
-        super(name);
+    constructor(id, name, salesPrice) {
+        super(id, name);
         this._salesPrice = salesPrice;
         this._quantity = 1;
         this._type = 'Item';
@@ -228,20 +173,20 @@ class Item extends Node {
         return this._salesPrice;
     }
 
-    set salesPrice(salesPrice) {
-        this._salesPrice = salesPrice;
+    set salesPrice(val) {
+        this._salesPrice = val;
     }
 
-    set quantity(_cantChange) {
+    set quantity(_) {
         throw new Error(`Item 으로 등록된 '${this._name}' 의 수량 변경은 불가능 합니다.`);
     }
 }
 
 class Material extends Node {
-    constructor(name, quantity, cost) {
-        super(name);
-        this._cost = cost;
+    constructor(id, name, quantity, cost) {
+        super(id, name);
         this._quantity = quantity;
+        this._cost = cost;
         this._type = 'Material';
     }
 }
