@@ -9,10 +9,11 @@
     <link rel="stylesheet" href="css/tabulator_bootstrap5.min.css">
     <script src="js/tabulator.min.js"></script>
     <script src="js/util/lz-string.min.js"></script>
+    <script src="js/util/IdManager.js"></script>
     <script src="js/util/UrlDataManger.js"></script>
     <script src="js/util/DataTree.js"></script>
-    <script src="js/util/AutoSaveDataTree.js"></script>
     <script src="test/SampleData.js"></script>
+    <script src="js/util/TableController.js"></script>
     <style>
         h1 {
             text-align: center;
@@ -29,22 +30,7 @@
     const udm = new UrlDataManager();
     const dt = DataTree.from(udm.loadFromUrl());
     console.log(dt)
-    const tableData = [
-        {id: 1, name: "김철수", age: 25},
-        {id: 2, name: "이영희", age: 31},
-        {id: 3, name: "박민수", age: 29},
-    ];
-
-    const table = new Tabulator("#table", {
-        data: tableData,
-        layout: "fitColumns",
-        columns: [
-            {title: "이름", field: "name"},
-            {title: "나이", field: "age"},
-        ],
-    });
-    table.on("rowClick", (e, row) => {
-        console.log("clicked row:", row.getData());
-    });
+    const table = new TableController(dt, '#table');
+    table.show();
 </script>
 </html>

@@ -1,32 +1,35 @@
-const coffeeDataTree = new AutoSaveDataTree();
+const coffeeDataTree = new DataTree();
 
-// 아이템(메뉴) 생성
-coffeeDataTree.createItem("아이스 아메리카노", 4500);
-coffeeDataTree.createItem("핫 아메리카노", 4000);
-coffeeDataTree.createItem("카페라떼", 5000);
-coffeeDataTree.createItem("카라멜 마끼아또", 5500);
+// Create items (menu)
+const icedAmericano = coffeeDataTree.createItem("Iced Americano", 4500);
+const hotAmericano = coffeeDataTree.createItem("Hot Americano", 4000);
+const cafeLatte = coffeeDataTree.createItem("Cafe Latte", 5000);
+const caramelMacchiato = coffeeDataTree.createItem("Caramel Macchiato", 5500);
 
-// 재료 생성 (Material)
-coffeeDataTree.createMaterial("에스프레소 샷", 1, 700);
-coffeeDataTree.createMaterial("아이스", 100, 50);
-coffeeDataTree.createMaterial("우유", 200, 400);
-coffeeDataTree.createMaterial("카라멜 시럽", 30, 300);
-coffeeDataTree.createMaterial("물", 200, 0);
+// Create materials
+const espressoShot = coffeeDataTree.createMaterial("Espresso Shot", 1, 700);
+const ice = coffeeDataTree.createMaterial("Ice", 100, 50);
+const milk = coffeeDataTree.createMaterial("Milk", 200, 400);
+const caramelSyrup = coffeeDataTree.createMaterial("Caramel Syrup", 30, 300);
+const water = coffeeDataTree.createMaterial("Water", 200, 0);
 
-// 아이스 아메리카노 = 에스프레소 샷 + 얼음 + 물
-coffeeDataTree.insertChild("아이스 아메리카노", "에스프레소 샷", 1);
-coffeeDataTree.insertChild("아이스 아메리카노", "아이스", 100);
-coffeeDataTree.insertChild("아이스 아메리카노", "물", 200);
+// Iced Americano = Espresso Shot + Ice + Water
+coffeeDataTree.insertChild(icedAmericano.id, espressoShot.id, 1);
+coffeeDataTree.insertChild(icedAmericano.id, ice.id, 100);
+coffeeDataTree.insertChild(icedAmericano.id, water.id, 200);
 
-// 핫 아메리카노 = 에스프레소 샷 + 물
-coffeeDataTree.insertChild("핫 아메리카노", "에스프레소 샷", 1);
-coffeeDataTree.insertChild("핫 아메리카노", "물", 200);
+// Hot Americano = Espresso Shot + Water
+coffeeDataTree.insertChild(hotAmericano.id, espressoShot.id, 1);
+coffeeDataTree.insertChild(hotAmericano.id, water.id, 200);
 
-// 카페라떼 = 에스프레소 샷 + 우유
-coffeeDataTree.insertChild("카페라떼", "에스프레소 샷", 1);
-coffeeDataTree.insertChild("카페라떼", "우유", 200);
+// Cafe Latte = Espresso Shot + Milk
+coffeeDataTree.insertChild(cafeLatte.id, espressoShot.id, 1);
+coffeeDataTree.insertChild(cafeLatte.id, milk.id, 200);
 
-// 카라멜 마끼아또 = 에스프레소 샷 + 우유 + 카라멜 시럽
-coffeeDataTree.insertChild("카라멜 마끼아또", "에스프레소 샷", 1);
-coffeeDataTree.insertChild("카라멜 마끼아또", "우유", 200);
-coffeeDataTree.insertChild("카라멜 마끼아또", "카라멜 시럽", 30);
+// Caramel Macchiato = Espresso Shot + Milk + Caramel Syrup
+coffeeDataTree.insertChild(caramelMacchiato.id, espressoShot.id, 1);
+coffeeDataTree.insertChild(caramelMacchiato.id, milk.id, 200);
+coffeeDataTree.insertChild(caramelMacchiato.id, caramelSyrup.id, 30);
+
+const saveUrl = new UrlDataManager();
+saveUrl.saveToUrl(coffeeDataTree.toObject())

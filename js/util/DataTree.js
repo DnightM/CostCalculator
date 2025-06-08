@@ -1,3 +1,7 @@
+if (typeof IdManager === 'undefined') {
+    throw new Error('IdManager class is required but not defined.');
+}
+
 class DataTree {
     _nodes = {}; // id -> Node
     _idManager = new IdManager();
@@ -38,6 +42,40 @@ class DataTree {
         }
 
         return dataTree;
+    }
+
+    toObject() {
+        const simpleNodes = {};
+
+        for (const id in this._nodes) {
+            const node = this._nodes[id];
+            simpleNodes[id] = simplify(node);
+        }
+
+        return {
+            _idManager: {
+                usedIds: Array.from(this._idManager.usedIds),
+                lastGenerated: this._idManager.lastGenerated
+            },
+            _nodes: simpleNodes
+        };
+
+        function simplify(node) {
+            const base = {...node};
+
+            if (node._child) {
+                base._child = {};
+                for (const key in node._child) {
+                    const entry = node._child[key];
+                    base._child[key] = {
+                        node: simplify(entry.node),
+                        quantity: entry.quantity
+                    };
+                }
+            }
+
+            return base;
+        }
     }
 
     get nodes() {
@@ -85,7 +123,7 @@ class DataTree {
     }
 }
 
-class Node {
+class TreeNode {
     constructor(id, name) {
         this._id = id;
         this._name = name;
@@ -104,7 +142,7 @@ class Node {
             this._cost = null;
         }
 
-        this._child[node.id] = { node, quantity };
+        this._child[node.id] = {node, quantity};
 
         if (this.hasCycle()) {
             delete this._child[node.id];
@@ -134,19 +172,41 @@ class Node {
         return false;
     }
 
-    get id() { return this._id; }
-    get name() { return this._name; }
-    set name(val) { this._name = val; }
-    get cost() { return this._cost; }
+    get id() {
+        return this._id;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    set name(val) {
+        this._name = val;
+    }
+
+    get cost() {
+        return this._cost;
+    }
+
     set cost(val) {
         if (this._child) {
             throw new Error(`'${this._name}' 안에 하위 항목들이 존재하므로, 가격 임의 변경이 불가능 합니다.`);
         }
         this._cost = val;
     }
-    get quantity() { return this._quantity; }
-    set quantity(val) { this._quantity = val; }
-    get child() { return this._child; }
+
+    get quantity() {
+        return this._quantity;
+    }
+
+    set quantity(val) {
+        this._quantity = val;
+    }
+
+    get child() {
+        return this._child;
+    }
+
     get unitCost() {
         if (!this._child) {
             if (this._cost == null || this._quantity === 0) return 0;
@@ -161,12 +221,16 @@ class Node {
     }
 }
 
-class Item extends Node {
+class Item extends TreeNode {
     constructor(id, name, salesPrice) {
         super(id, name);
         this._salesPrice = salesPrice;
         this._quantity = 1;
         this._type = 'Item';
+    }
+
+    get type() {
+        return this._type;
     }
 
     get salesPrice() {
@@ -182,11 +246,15 @@ class Item extends Node {
     }
 }
 
-class Material extends Node {
+class Material extends TreeNode {
     constructor(id, name, quantity, cost) {
         super(id, name);
         this._quantity = quantity;
         this._cost = cost;
         this._type = 'Material';
+    }
+
+    get type() {
+        return this._type
     }
 }
