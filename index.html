@@ -14,7 +14,6 @@
     <script src="js/util/DataTree.js"></script>
 <!--    <script src="test/SampleData.js"></script>-->
     <script src="js/util/TableController.js"></script>
-    <script src="js/util/AutoSaveTableController.js"></script>
     <style>
         h1 {
             text-align: center;
@@ -35,7 +34,7 @@
 <script>
     const udm = new UrlDataManager();
     const dt = DataTree.from(udm.loadFromUrl());
-    const table = new AutoSaveTableController(dt, '#table');
+    const table = new TableController(dt, '#table');
     table.show();
 console.log(dt)
     function insertRow() {

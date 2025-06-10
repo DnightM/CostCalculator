@@ -5,6 +5,7 @@ class TableController {
         this.selectedRow = null;
         this.table = null;
         this.currentParentId = null;
+        this.urlDataManager = new UrlDataManager();
 
         this.FIELD = {
             NAME: 'name',
@@ -66,7 +67,9 @@ class TableController {
                     alert(`수정 중 오류 발생: ${e.message}`);
                 }
             });
+            this.table.on("cellEdited", () => this._save());
         }
+        this._save();
     }
 
     /**
@@ -187,5 +190,10 @@ class TableController {
             this.dataTree.removeNode(id);
         }
         this.show(this.currentParentId);
+    }
+
+    _save() {
+        console.log('save data')
+        this.urlDataManager.saveToUrl(this.dataTree.toObject());
     }
 }
