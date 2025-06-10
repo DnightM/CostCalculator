@@ -1,7 +1,6 @@
 fetch(`page/top/top-bar.html`)
     .then(res => res.text())
     .then(html => {
-        console.log(html)
         document.getElementById('topBar').innerHTML = html;
     });
 

@@ -9,16 +9,16 @@ class DataTree {
     static from(obj) {
         const dataTree = new DataTree();
         const tempNodes = {};
-
-        // IDManager 복원
-        Object.assign(dataTree._idManager, obj._idManager);
+        const idManager = new IdManager();
 
         // 노드 복원
-        for (const id in obj._nodes) {
-            const nodeObj = obj._nodes[id];
+        for (const id in obj.nodes) {
+            const nodeObj = obj.nodes[id];
             tempNodes[id] = convert(nodeObj);
+            idManager.add(Number(id));
         }
         dataTree._nodes = tempNodes;
+        dataTree._idManager = idManager;
 
         function convert(obj) {
             const type = obj._type;
@@ -52,13 +52,7 @@ class DataTree {
             simpleNodes[id] = simplify(node);
         }
 
-        return {
-            _idManager: {
-                usedIds: Array.from(this._idManager.usedIds),
-                lastGenerated: this._idManager.lastGenerated
-            },
-            _nodes: simpleNodes
-        };
+        return {nodes: simpleNodes};
 
         function simplify(node) {
             const base = {...node};

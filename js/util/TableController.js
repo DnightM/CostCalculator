@@ -3,10 +3,23 @@ class TableController {
         this.dataTree = dataTree;
         this.tableElementSelector = tableElementSelector;
         this.table = null;
+        this.currentParentId = null;
         this.urlDataManager = new UrlDataManager();
+
+        this.FIELD = {
+            NAME: 'name',
+            SALES_PRICE: 'salesPrice',
+            UNIT_COST: 'unitCost',
+            QUANTITY: 'quantity',
+        };
     }
 
+    /**
+     * 테이블을 렌더링함
+     * @param {number|null} id - 부모 노드 ID (없으면 전체 메뉴 목록)
+     */
     show(id = null) {
+        this.currentParentId = id;
         const {columns, data} = this.toTabulatorData(id);
 
         if (this.table) {
@@ -17,27 +30,35 @@ class TableController {
                 data: data,
                 layout: "fitColumns",
                 columns: columns,
+                selectable: true
             });
-            // this.table.on("rowDoubleClick", (e, row) => {
-            //     console.log("clicked row:", row.getData());
-            // });
 
             this.table.on("cellEdited", (cell) => {
                 const rowData = cell.getRow().getData();
-
                 const field = cell.getField();
                 const value = cell.getValue();
                 const node = this.dataTree.getNodeById(rowData.id);
                 if (!node) return;
+
                 try {
-                    if (field === 'name') node.name = value;
-                    else if (field === 'salesPrice') node.salesPrice = value;
-                    else if (field === 'unitCost') node.cost = value;
-                    else if (field === 'quantity') {
-                        const parentNode = this.dataTree.getNodeById(this.currentParentId);
-                        if (parentNode && parentNode.child && parentNode.child[rowData.id]) {
-                            parentNode.child[rowData.id].quantity = value;
-                        }
+                    switch (field) {
+                        case this.FIELD.NAME:
+                            node.name = value;
+                            break;
+                        case this.FIELD.SALES_PRICE:
+                            node.salesPrice = value;
+                            cell.getRow().update({benefit: node.salesPrice - node.unitCost});
+                            break;
+                        case this.FIELD.UNIT_COST:
+                            node.cost = value;
+                            cell.getRow().update({benefit: (node.salesPrice || 0) - (node.unitCost || 0)});
+                            break;
+                        case this.FIELD.QUANTITY:
+                            const parentNode = this.dataTree.getNodeById(this.currentParentId);
+                            if (parentNode?.child?.[rowData.id]) {
+                                parentNode.child[rowData.id].quantity = value;
+                            }
+                            break;
                     }
                 } catch (e) {
                     alert(`수정 중 오류 발생: ${e.message}`);
@@ -46,13 +67,18 @@ class TableController {
         }
     }
 
+    /**
+     * Tabulator용 데이터와 컬럼 정의 반환
+     * @param {number|null} id - 부모 노드 ID
+     * @returns {{columns: array, data: array}}
+     */
     toTabulatorData(id = null) {
         const data = [];
         const columns = this.getColumns(id);
 
         if (id) {
             const parent = this.dataTree.getNodeById(id);
-            if (!parent || !parent.child) return {columns, data};
+            if (!parent?.child) return {columns, data};
 
             for (const childId in parent.child) {
                 const {node, quantity} = parent.child[childId];
@@ -81,56 +107,68 @@ class TableController {
         return {columns, data};
     }
 
+    /**
+     * 테이블 컬럼 정의 반환
+     * @param {number|null} id - 부모 노드 ID
+     * @returns {array} 컬럼 정의 배열
+     */
     getColumns(id = null) {
-        return id
+        const base = id
             ? [
-                {title: "재료", field: "name", editor: "input"},
-                {title: "수량", field: "quantity", editor: "number"},
-                {title: "원가", field: "unitCost", editor: "number"}
+                {title: "재료", field: this.FIELD.NAME, editor: "input"},
+                {title: "수량", field: this.FIELD.QUANTITY, editor: "number"},
+                {title: "원가", field: this.FIELD.UNIT_COST, editor: "number"},
             ]
             : [
-                {title: "메뉴", field: "name", editor: "input"},
-                {title: "판매가", field: "salesPrice", editor: "number"},
-                {title: "원가", field: "unitCost"},
-                {title: "수익", field: "benefit"}
+                {title: "메뉴", field: this.FIELD.NAME, editor: "input"},
+                {title: "판매가", field: this.FIELD.SALES_PRICE, editor: "number"},
+                {title: "원가", field: this.FIELD.UNIT_COST},
+                {title: "수익", field: "benefit"},
             ];
+
+        return [{formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 50}, ...base];
     }
 
     /**
-     * 테이블에 새 행 추가
-     * 현재 parentId 기준으로 재료 추가하거나, 최상단 메뉴 추가
+     * 새 행 추가 (메뉴 또는 재료)
+     * @param {object} defaults - 기본값 {name, unitCost, quantity, salesPrice}
      */
     insertRow(defaults = {}) {
-        const newId = this.dataTree.getNextId();
         let newNode;
 
         if (this.currentParentId) {
-            // 재료 추가
-            newNode = this.dataTree.createMaterial(defaults.name || "신규재료", defaults.unitCost || 0);
-            this.dataTree.addChild(this.currentParentId, newNode.id, defaults.quantity || 1);
+            newNode = this.dataTree.createMaterial(
+                defaults.name || "신규재료",
+                defaults.unitCost || 0
+            );
+            this.dataTree.insertChild(
+                this.currentParentId,
+                newNode.id,
+                defaults.quantity || 1
+            );
         } else {
-            // 메뉴 추가
-            newNode = this.dataTree.createItem(defaults.name || "신규메뉴", defaults.salesPrice || 0);
+            newNode = this.dataTree.createItem(
+                defaults.name || "신규메뉴",
+                defaults.salesPrice || 0
+            );
         }
 
         this.show(this.currentParentId);
     }
 
+
     /**
      * 선택된 행 삭제
-     * DataTree에서도 제거
      */
     deleteRow() {
         const selectedRows = this.table.getSelectedData();
+        console.log(selectedRows)
         if (selectedRows.length === 0) return;
-
         for (const row of selectedRows) {
             const id = row.id;
             if (this.currentParentId) {
-                // 자식에서 제거
                 this.dataTree.removeChild(this.currentParentId, id);
             } else {
-                // 전체에서 제거
                 this.dataTree.removeNode(id);
             }
         }
