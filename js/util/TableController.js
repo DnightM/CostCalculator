@@ -2,9 +2,9 @@ class TableController {
     constructor(dataTree, tableElementSelector) {
         this.dataTree = dataTree;
         this.tableElementSelector = tableElementSelector;
+        this.selectedRow = null;
         this.table = null;
         this.currentParentId = null;
-        this.urlDataManager = new UrlDataManager();
 
         this.FIELD = {
             NAME: 'name',
@@ -32,7 +32,9 @@ class TableController {
                 columns: columns,
                 selectable: true
             });
-
+            this.table.on("rowClick", (e, row) => {
+                this.selectedRow = row.getData();
+            });
             this.table.on("cellEdited", (cell) => {
                 const rowData = cell.getRow().getData();
                 const field = cell.getField();
@@ -113,7 +115,7 @@ class TableController {
      * @returns {array} 컬럼 정의 배열
      */
     getColumns(id = null) {
-        const base = id
+        return id
             ? [
                 {title: "재료", field: this.FIELD.NAME, editor: "input"},
                 {title: "수량", field: this.FIELD.QUANTITY, editor: "number"},
@@ -125,8 +127,6 @@ class TableController {
                 {title: "원가", field: this.FIELD.UNIT_COST},
                 {title: "수익", field: "benefit"},
             ];
-
-        return [{formatter: "rowSelection", titleFormatter: "rowSelection", hozAlign: "center", headerSort: false, width: 50}, ...base];
     }
 
     /**
@@ -156,23 +156,36 @@ class TableController {
         this.show(this.currentParentId);
     }
 
+    modifyRow() {
+        const row = this.selectedRow;
+        this.selectedRow = null;
+        if (!row) {
+            alert("수정할 행을 먼저 선택해주세요.");
+            return false;
+        }
+        const id = row.id;
+        this.show(id);
+        return true;
+    }
 
     /**
      * 선택된 행 삭제
      */
     deleteRow() {
-        const selectedRows = this.table.getSelectedData();
-        console.log(selectedRows)
-        if (selectedRows.length === 0) return;
-        for (const row of selectedRows) {
-            const id = row.id;
-            if (this.currentParentId) {
-                this.dataTree.removeChild(this.currentParentId, id);
-            } else {
-                this.dataTree.removeNode(id);
-            }
+        const row = this.selectedRow;
+        this.selectedRow = null;
+        if (!row) {
+            alert("삭제할 행을 먼저 선택해주세요.");
+            return;
         }
-
+        const id = row.id;
+        const ok = confirm(`'${row.name}'을(를) 삭제할까요?`);
+        if (!ok) return;
+        if (this.currentParentId) {
+            this.dataTree.removeChild(this.currentParentId, id);
+        } else {
+            this.dataTree.removeNode(id);
+        }
         this.show(this.currentParentId);
     }
 }

@@ -12,8 +12,9 @@
     <script src="js/util/IdManager.js"></script>
     <script src="js/util/UrlDataManger.js"></script>
     <script src="js/util/DataTree.js"></script>
-    <script src="test/SampleData.js"></script>
+<!--    <script src="test/SampleData.js"></script>-->
     <script src="js/util/TableController.js"></script>
+    <script src="js/util/AutoSaveTableController.js"></script>
     <style>
         h1 {
             text-align: center;
@@ -26,6 +27,7 @@
 
 <div style="display: flex;justify-content: center;">
     <button style="margin: 10px" onclick="insertRow()">등록</button>
+    <button id="modifyBtn" style="margin: 10px" onclick="modifyRow()">수정</button>
     <button style="margin: 10px" onclick="deleteRow()">삭제</button>
 </div>
 <div id="table" class="table table-bordered"></div>
@@ -33,12 +35,17 @@
 <script>
     const udm = new UrlDataManager();
     const dt = DataTree.from(udm.loadFromUrl());
-    console.log(dt)
-    const table = new TableController(dt, '#table');
+    const table = new AutoSaveTableController(dt, '#table');
     table.show();
-
+console.log(dt)
     function insertRow() {
         table.insertRow();
+    }
+
+    function modifyRow() {
+        if (table.modifyRow()) {
+            document.getElementById('modifyBtn').style.display = 'none';
+        }
     }
 
     function deleteRow() {
