@@ -24,6 +24,10 @@
 <div id="topBar" style="min-height:50px;"></div>
 <script src="js/top-bar.js"></script>
 
+<div style="display: flex;justify-content: center;">
+    <button style="margin: 10px" onclick="insertRow()">등록</button>
+    <button style="margin: 10px" onchange="deleteRow()">삭제</button>
+</div>
 <div id="table" class="table table-bordered"></div>
 </body>
 <script>
@@ -32,5 +36,13 @@
     console.log(dt)
     const table = new TableController(dt, '#table');
     table.show();
+
+    function insertRow() {
+        table.insertRow();
+    }
+
+    function deleteRow() {
+        table.deleteRow();
+    }
 </script>
 </html>
